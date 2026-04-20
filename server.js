@@ -5,6 +5,8 @@ const routes = require("./src/routes");
 const PORT = 3000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 connectToMongo();
 
 app.get("/ping", (req, res) => {

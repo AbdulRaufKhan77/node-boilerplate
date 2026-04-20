@@ -1,2 +1,4 @@
 node_modules
 .env.local
+.evn
+package-lock.json
