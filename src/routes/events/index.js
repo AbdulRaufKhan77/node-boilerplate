@@ -12,7 +12,7 @@ eventRouter.get("/getEvents", Authentication, async (req, res) => {
 });
 
 eventRouter.post(("/addEvent", Authentication), async (req, res) => {
-  const { title, description, date, location, songArray, albumId, eventType } =
+  const { title, description, date, location, albumIdArray, eventType } =
     req.body;
   try {
     const newEvent = new Event({
@@ -21,14 +21,24 @@ eventRouter.post(("/addEvent", Authentication), async (req, res) => {
       date,
       location,
       user: req.user._id,
-      songs: songArray,
-      album: albumId,
+      album: albumIdArray,
       eventType,
     });
     await newEvent.save();
     res.status(201).json(newEvent);
   } catch (error) {
     res.status(400).json({ message: "Error creating event", error });
+  }
+});
+
+eventRouter.get("/getPublicEvents", async (req, res) => {
+  try {
+    const publicEvents = await Event.find({ eventType: "public" }).populate(
+      "album",
+    );
+    res.json(publicEvents);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching public events", error });
   }
 });
 

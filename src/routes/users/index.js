@@ -1,6 +1,7 @@
 const userRouter = require("express").Router();
 const User = require("../../schemas/user.model");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const Authentication = require("../../middlewares/index");
 
@@ -39,7 +40,8 @@ userRouter.post("/register", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
     const jwtToken = jwt.sign({ email }, "token", { expiresIn: "1h" });
-    const newUser = new User({ name, email, password, role });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ name, email, password: hashedPassword, role });
     await newUser.save();
     res.status(201).json({
       message: "User registered successfully",
@@ -54,7 +56,8 @@ userRouter.post("/register", async (req, res) => {
 userRouter.get("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.find({ email, password });
+    const user = await User.findOne({ email, password });
+    console.log(user);
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -75,8 +78,5 @@ userRouter.get("/admin", Authentication, async (req, res) => {
   }
   res.json({ message: "Welcome, Admin!", user: req.user });
 });
-
-
-
 
 module.exports = userRouter;

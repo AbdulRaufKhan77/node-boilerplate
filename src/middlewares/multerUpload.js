@@ -17,9 +17,9 @@ const storage = multer.diskStorage({
     cb(null, "uploads/"); // Directory to save uploaded files
   },
   filename: function (req, file, cb) {
-    if (fileFilter(req, file, cb) === false) {
-      return cb(new Error("Only audio files are allowed"), false);
-    }
+    // if (fileFilter(req, file, cb) === false) {
+    //   return cb(new Error("Only audio files are allowed"), false);
+    // }
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(
       null,

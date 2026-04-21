@@ -1,5 +1,6 @@
 const schema = require("mongoose").Schema;
 const mongoose = require("mongoose");
+const { en } = require("zod/locales");
 
 const userSchema = new schema({
   name: {
@@ -18,6 +19,8 @@ const userSchema = new schema({
   role: {
     type: String,
     required: true,
+    enum: ["admin", "user", "Dj"],
+    default: "user",
   },
   date: {
     type: Date,
