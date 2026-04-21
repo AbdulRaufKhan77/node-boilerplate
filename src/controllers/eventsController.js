@@ -1,4 +1,4 @@
-const Event = require("../../schemas/events.model");
+const Event = require("../schemas/event.model");
 
 // Get all events for the authenticated user
 const getEvents = async (req, res) => {

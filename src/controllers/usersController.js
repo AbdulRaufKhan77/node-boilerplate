@@ -1,8 +1,7 @@
-const User = require("../../schemas/user.model");
+const User = require("../schemas/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// Get all users
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -12,7 +11,6 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// Create a new user (with bearer token authentication)
 const addUser = async (req, res) => {
   const header = req.headers;
   const auth = header.authorization;

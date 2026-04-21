@@ -1,5 +1,5 @@
-const Song = require("../../schemas/songs.model");
-const Album = require("../../schemas/album.model");
+const Song = require("../schemas/songs.model");
+const Album = require("../schemas/album.model");
 
 // Get songs by album ID
 const getSongs = async (req, res) => {

@@ -1,4 +1,4 @@
-const Album = require("../../schemas/album.model");
+const Album = require("../schemas/album.model");
 
 // Get all albums for the authenticated user
 const getAlbums = async (req, res) => {
