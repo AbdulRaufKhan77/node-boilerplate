@@ -29,7 +29,26 @@ const addAlbum = async (req, res) => {
   }
 };
 
+const addFavouriteAlbum = async (req, res) => {
+  const { albumId } = req.body;
+  try {
+    if (!albumId) {
+      return res.status(400).json({ message: "Album ID is required" });
+    }
+    const album = await Album.findById(albumId);
+    if (!album) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+    req.user.favouriteAlbums.push(albumId);
+    await req.user.save();
+    res.json({ message: "Album added to favourites", user: req.user });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding favourite album", error });
+  }
+};
+
 module.exports = {
   getAlbums,
   addAlbum,
+  addFavouriteAlbum,
 };

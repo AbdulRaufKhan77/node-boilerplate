@@ -1,6 +1,5 @@
 const schema = require("mongoose").Schema;
 const mongoose = require("mongoose");
-const { en } = require("zod/locales");
 
 const userSchema = new schema({
   name: {
@@ -26,6 +25,9 @@ const userSchema = new schema({
     type: Date,
     default: Date.now,
   },
+  followerCount: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+  favouriteAlbums: [{ type: schema.Types.ObjectId, ref: "Album" }],
 });
 
 const User = mongoose.model("user", userSchema);

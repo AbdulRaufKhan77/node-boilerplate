@@ -7,6 +7,9 @@ const albumSchema = new Schema({
   releaseDate: { type: Date },
   coverUrl: { type: String },
   userId: { type: Schema.Types.ObjectId, ref: "User" },
+  isPublic: { type: Boolean, default: false },
+  genres: { type: String, require: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const Album = mongoose.model("Album", albumSchema);

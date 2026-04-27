@@ -11,22 +11,6 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-const addUser = async (req, res) => {
-  const header = req.headers;
-  const auth = header.authorization;
-  if (!auth || auth !== "Bearer mysecrettoken") {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  const { name, email, password } = req.body;
-  try {
-    const newUser = new User({ name, email, password });
-    await newUser.save();
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(400).json({ message: "Error creating user", error });
-  }
-};
-
 // Register a new user
 const register = async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -53,9 +37,12 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email, password });
-    console.log(user);
+    const user = await User.findOne({ email });
     if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
     const jwtToken = jwt.sign({ email }, "token", { expiresIn: "1h" });
@@ -78,11 +65,29 @@ const getAdmin = async (req, res) => {
   res.json({ message: "Welcome, Admin!", user: req.user });
 };
 
+const addFollower = async (req, res) => {
+  const { id } = req.query;
+  try {
+    const user = await User.findById({ _id: id });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.followerCount += 1;
+    await user.save();
+    res.json({
+      message: "Follower added successfully",
+      followerCount: user.followerCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding follower", error });
+  }
+};
+
 module.exports = {
   getAllUsers,
-  addUser,
   register,
   login,
   getProfile,
   getAdmin,
+  addFollower,
 };
