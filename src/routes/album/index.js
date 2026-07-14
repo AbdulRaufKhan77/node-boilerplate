@@ -1,3 +1,13 @@
+/**
+ * @swagger
+ * /api/songs:
+ *   get:
+ *     summary: Get all songs
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+
 const albumRouter = require("express").Router();
 const Authentication = require("../../middlewares");
 const storage = require("../../middlewares/multerUpload");

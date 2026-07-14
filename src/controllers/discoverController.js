@@ -115,7 +115,6 @@ const getTrending = async (req, res) => {
   }
 };
 
-// GET /api/discover/search?q=keyword — Search users, albums, songs
 const search = async (req, res) => {
   const { q } = req.query;
 

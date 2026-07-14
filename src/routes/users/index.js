@@ -9,6 +9,89 @@ const {
   addFollower,
 } = require("../../controllers/usersController");
 
+
+// swagger documentation for user routes
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     responses:
+ *       200:
+ *         description: Success
+ *
+ * /api/users/register:
+ *   post:
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *
+ * /api/users/login:
+ *   get:
+ *     summary: Login a user
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: password
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *
+ * /api/users/profile:
+ *   get:
+ *     summary: Get user profile
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Success
+ *
+ * /api/users/admin:
+ *   get:
+ *     summary: Get admin access
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Success
+ * /api/users/addFollower/{id}:
+ *   post:
+ *     summary: Add a follower to a user
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Follower added successfully
+ */ 
+
+
 userRouter.get("/", getAllUsers);
 userRouter.post("/register", register);
 userRouter.get("/login", login);
