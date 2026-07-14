@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Event = require("../schemas/event.model");
 
 // Get all events for the authenticated user
@@ -79,10 +80,32 @@ const addAttendee = async (req, res) => {
   }
 };
 
+// Get a single public event with populated relations
+const getEventById = async (req, res) => {
+  const { eventId } = req.params;
+  try {
+    if (!mongoose.isValidObjectId(eventId)) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    const event = await Event.findById(eventId)
+      .populate("user", "name role")
+      .populate("album", "title artist coverUrl")
+      .populate("attendees", "name")
+      .populate("comments.user", "name");
+    if (!event || event.visibility !== "public") {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching event", error });
+  }
+};
+
 module.exports = {
   getEvents,
   addEvent,
   getPublicEvents,
   addCommentsOnEvent,
   addAttendee,
+  getEventById,
 };

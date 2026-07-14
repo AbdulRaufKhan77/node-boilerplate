@@ -9,7 +9,7 @@ const Authentication = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, "token");
-    const user = await User.findOne({ email: decoded.email });
+    const user = await User.findOne({ email: decoded.email }).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

@@ -1,10 +1,11 @@
+const mongoose = require("mongoose");
 const User = require("../schemas/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().select("-password");
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: "Error fetching users", error });
@@ -23,9 +24,10 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ name, email, password: hashedPassword, role });
     await newUser.save();
+    const { password: _pw, ...safeUser } = newUser.toObject();
     res.status(201).json({
       message: "User registered successfully",
-      user: newUser,
+      user: safeUser,
       token: jwtToken,
     });
   } catch (error) {
@@ -46,7 +48,8 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
     const jwtToken = jwt.sign({ email }, "token", { expiresIn: "1h" });
-    res.json({ message: "Login successful", user, token: jwtToken });
+    const { password: _pw, ...safeUser } = user.toObject();
+    res.json({ message: "Login successful", user: safeUser, token: jwtToken });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error });
   }
@@ -66,9 +69,9 @@ const getAdmin = async (req, res) => {
 };
 
 const addFollower = async (req, res) => {
-  const { id } = req.query;
+  const { id } = req.params;
   try {
-    const user = await User.findById({ _id: id });
+    const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -83,6 +86,25 @@ const addFollower = async (req, res) => {
   }
 };
 
+// Get a user's public profile by id
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const user = await User.findById(id)
+      .select("name role followerCount createdAt favouriteAlbums")
+      .populate("favouriteAlbums", "title artist coverUrl");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user", error });
+  }
+};
+
 module.exports = {
   getAllUsers,
   register,
@@ -90,4 +112,5 @@ module.exports = {
   getProfile,
   getAdmin,
   addFollower,
+  getUserById,
 };

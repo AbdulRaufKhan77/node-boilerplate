@@ -1,4 +1,7 @@
+const mongoose = require("mongoose");
 const Album = require("../schemas/album.model");
+const Song = require("../schemas/songs.model");
+const User = require("../schemas/user.model");
 
 // Get all albums for the authenticated user
 const getAlbums = async (req, res) => {
@@ -12,15 +15,17 @@ const getAlbums = async (req, res) => {
 
 // Create a new album
 const addAlbum = async (req, res) => {
-  const { title, artist, releaseDate } = req.body;
+  const { title, artist, releaseDate, genres, isPublic } = req.body;
   const coverUrl = req.file ? req.file.path : null;
   try {
     const newAlbum = new Album({
       title,
       artist,
       releaseDate,
+      genres,
       coverUrl,
       userId: req.user._id,
+      isPublic: isPublic === true || isPublic === "true",
     });
     await newAlbum.save();
     res.status(201).json(newAlbum);
@@ -39,11 +44,36 @@ const addFavouriteAlbum = async (req, res) => {
     if (!album) {
       return res.status(404).json({ message: "Album not found" });
     }
-    req.user.favouriteAlbums.push(albumId);
-    await req.user.save();
-    res.json({ message: "Album added to favourites", user: req.user });
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $addToSet: { favouriteAlbums: albumId } },
+      { new: true },
+    ).select("-password");
+    res.json({ message: "Album added to favourites", user });
   } catch (error) {
     res.status(500).json({ message: "Error adding favourite album", error });
+  }
+};
+
+// Get a single album with its songs (owner or public only)
+const getAlbumById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+    const album = await Album.findById(id).populate("userId", "name role");
+    if (!album) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+    const isOwner = album.userId && album.userId._id.equals(req.user._id);
+    if (!album.isPublic && !isOwner) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+    const songs = await Song.find({ albumId: album._id });
+    res.json({ album, songs });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching album", error });
   }
 };
 
@@ -51,4 +81,5 @@ module.exports = {
   getAlbums,
   addAlbum,
   addFavouriteAlbum,
+  getAlbumById,
 };

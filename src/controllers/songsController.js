@@ -14,7 +14,7 @@ const getSongs = async (req, res) => {
 
 // Create a new song
 const addSongs = async (req, res) => {
-  const { title, artist, albumId } = req.body;
+  const { title, artist, albumId, isPublic } = req.body;
   try {
     if (!title || !artist || !albumId) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -33,6 +33,7 @@ const addSongs = async (req, res) => {
       artist,
       userId: req.user._id,
       albumId,
+      isPublic: isPublic === true || isPublic === "true",
     });
     res.status(201).json(newSong);
   } catch (error) {

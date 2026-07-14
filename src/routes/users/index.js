@@ -7,6 +7,7 @@ const {
   getProfile,
   getAdmin,
   addFollower,
+  getUserById,
 } = require("../../controllers/usersController");
 
 
@@ -41,19 +42,19 @@ const {
  *         description: User registered successfully
  *
  * /api/users/login:
- *   get:
+ *   post:
  *     summary: Login a user
- *     parameters:
- *       - in: query
- *         name: email
- *         schema:
- *           type: string
- *         required: true
- *       - in: query
- *         name: password
- *         schema:
- *           type: string
- *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Login successful
@@ -94,9 +95,11 @@ const {
 
 userRouter.get("/", getAllUsers);
 userRouter.post("/register", register);
-userRouter.get("/login", login);
+userRouter.post("/login", login);
 userRouter.get("/profile", Authentication, getProfile);
 userRouter.get("/admin", Authentication, getAdmin);
 userRouter.post("/addFollower/:id", Authentication, addFollower);
+// Keep last so it doesn't shadow the named routes above
+userRouter.get("/:id", getUserById);
 
 module.exports = userRouter;
